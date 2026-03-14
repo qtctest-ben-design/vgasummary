@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>華碩 VGA 產品輿情監控系統</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 React, ReactDOM 與 Babel (用於即時編譯 JSX) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <!-- 引入 Recharts 與 Lucide 圖示庫 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.3/Recharts.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { margin: 0; background-color: #020617; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- 將你的 React 代碼放入此處 -->
+    <script type="text/babel">
+        // 從全域變數中解構出需要的組件 (Recharts 在 UMD 模式下掛載在全域)
+        const { 
+            BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+            PieChart, Pie, Cell, Legend 
+        } = window.Recharts;
+        const { 
+            AlertCircle, Share2, ExternalLink, RefreshCw, 
+            TrendingUp, MessageCircle, Database, ShieldAlert 
+        } = lucide;
+
+        // 這裡貼入你之前的 vga_analytics_dashboard.jsx 內容
+        // 注意：為了在 HTML 直接運行，我們稍微調整了導入方式
+        const App = () => {
+            const [data, setData] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+            const [filter, setFilter] = React.useState('全部');
+            const [error, setError] = React.useState(null);
+
+            React.useEffect(() => {
+                const fetchData = async () => {
+                    try {
+                        const response = await fetch('./articles_data.json');
+                        if (!response.ok) throw new Error(`找不到數據檔案 (HTTP ${response.status})`);
+                        const jsonData = await response.json();
+                        setData(Array.isArray(jsonData) ? jsonData : []);
+                    } catch (e) {
+                        setError(e.message);
+                        setData([
+                            { "source": "系統提示", "title": "請確認 articles_data.json 與 index.html 放在同目錄", "category": "資訊分享", "date": "N/A", "link": "#" }
+                        ]);
+                    } finally {
+                        setLoading(false);
+                    }
+                };
+                fetchData();
+            }, []);
+
+            // 此處省略部分重複的 UI 邏輯代碼，請參照 vga_analytics_dashboard.jsx 的 return 部分...
+            // (實作時請直接將該組件的完整邏輯貼入)
+
+            return (
+                <div className="min-h-screen bg-slate-950 text-slate-200 p-4 md:p-8 font-sans">
+                    {/* ... 這裡貼入原有的 JSX 結構 ... */}
+                    <h1 className="text-white text-2xl font-bold">華碩 VGA 產品輿情監控系統 (運行中)</h1>
+                    <p className="text-slate-400 mt-4">已從 articles_data.json 載入 {data.length} 筆資料</p>
+                    {/* ... 餘下代碼省略 ... */}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
